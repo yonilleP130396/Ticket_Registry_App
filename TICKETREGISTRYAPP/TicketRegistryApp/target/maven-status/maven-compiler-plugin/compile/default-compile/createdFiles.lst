@@ -1,0 +1,9 @@
+javaman\testApp\NIsfTicketList.class
+javaman\testApp\Model\myUser.class
+javaman\testApp\ServletInitializer.class
+javaman\testApp\Controller\LoginController.class
+javaman\testApp\Services\MyUserDetailService.class
+javaman\testApp\AuthenticationSuccessHandler.class
+javaman\testApp\WebSecurityConfiguration.class
+javaman\testApp\Repository\MyUserRepository.class
+javaman\testApp\Model\Tickets.class

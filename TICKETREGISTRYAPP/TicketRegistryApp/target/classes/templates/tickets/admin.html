@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGENT PORTAL | ASSET REGISTRY</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Courier+Prime&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #0f0f1e 100%);
+            font-family: 'Courier Prime', monospace;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+        .glass {
+            background: rgba(15, 15, 30, 0.6);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(212, 175, 55, 0.3);
+        }
+        h1 { font-family: 'Orbitron', sans-serif; letter-spacing: 4px; color: #d4af37; }
+        
+        /* Navigation & Controls */
+        .nav-link { color: #d4af37; transition: 0.3s; font-family: 'Orbitron', sans-serif; }
+        .nav-link:hover { color: #ffd700; text-shadow: 0 0 8px #ffd700; }
+        .cta-btn-sm { background: #d4af37; color: #0a0e27; padding: 5px 15px; font-weight: bold; border-radius: 4px; font-size: 0.7rem; }
+        .edit-btn { background: rgba(212, 175, 55, 0.1); border: 1px solid #d4af37; color: #d4af37; padding: 3px 8px; font-size: 0.6rem; }
+        
+        .search-input { background: rgba(212, 175, 55, 0.1); border: 2px solid rgba(212, 175, 55, 0.4); color: white; }
+        .search-input:focus { outline: none; border-color: #d4af37; box-shadow: 0 0 10px #d4af37; }
+        .ledger-table { border-collapse: separate; border-spacing: 0 10px; width: 100%; }
+        th { color: #ffd700; text-transform: uppercase; font-size: 0.7rem; padding: 15px; text-align: left; }
+        td { padding: 15px; background: rgba(212, 175, 55, 0.05); border-top: 1px solid rgba(212, 175, 55, 0.2); border-bottom: 1px solid rgba(212, 175, 55, 0.2); }
+        tr:hover td { background: rgba(212, 175, 55, 0.15); transition: 0.3s; }
+    </style>
+
+    <style>
+    .nav-link { color: #d4af37; transition: 0.3s; font-family: 'Orbitron', sans-serif; }
+    .nav-link:hover { color: #ffd700; text-shadow: 0 0 8px #ffd700; }
+</style>
+</head>
+<body class="p-8">
+
+    <div class="rounded-lg max-w-10xl mx-auto">
+        <nav class="glass mb-8 p-4 rounded-lg flex justify-between items-center w-full border-b-2 border-[rgba(212,175,55,0.3)]">
+            <h1 class="text-sm tracking-widest text-[#d4af37] font-bold uppercase">Personnel Ticket Registry</h1>
+            
+            <div class="flex gap-8 uppercase text-xs items-center">
+                
+                <a th:href="@{/admin}" class="nav-link">Home</a>
+                <a th:href="@{/admin/new}" class="nav-link">Registry</a>
+
+                <form th:action="@{/logout}" method="post" class="m-0 p-0 inline-block">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button type="submit" 
+                            class="nav-link text-[#d9534f] hover:text-red-500 uppercase tracking-widest cursor-pointer bg-transparent border-0 p-0 m-0 font-['Orbitron',sans-serif]">
+                        Terminate Session
+                    </button>
+                </form>
+            </div> 
+        </nav>
+    </div>
+     
+    
+
+    <div class="glass p-8 rounded-lg max-w-10xl mx-auto">
+        <div th:if="${param.success}" class="mb-6 p-4 bg-green-900/30 border border-green-500/50 text-green-400 text-center rounded animate-pulse font-['Orbitron'] uppercase tracking-widest text-xs">
+            [ SYSTEM NOTIFICATION: TICKET UPDATE SUCCESSFUL ]
+        </div>
+        <div th:if="${param.deletedsuccessfully}" class="mb-6 p-4 bg-green-900/30 border border-green-500/50 text-green-400 text-center rounded animate-pulse font-['Orbitron'] uppercase tracking-widest text-xs">
+            [ SYSTEM NOTIFICATION: TICKET TERMINATE SUCCESSFUL ]
+        </div>
+        
+        <h1 class="text-2xl mb-8 text-center uppercase">Encrypted Ticket Registry</h1>
+        
+        <div class="flex flex-col md:flex-row justify-between items-end gap-4 mb-8">
+            <div class="flex-grow">
+                <label class="block text-xs text-[#ffd700] mb-2 uppercase italic">Filter by last digits of ticket:</label>
+                <input type="text" id="ticketSearch" placeholder="ENTER DIGITS" class="search-input w-full p-3 rounded font-mono uppercase">
+            </div>
+            
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="ledger-table" id="assetTable">
+                <thead>
+                    <tr>
+                        <th>TICKET #</th>
+                        <th>NAME</th>
+                        <th>CONTACT</th>
+                        <th>ADDRESS</th>
+                        <th>SOLICITOR</th>
+                        <th>ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody class="text-xs" id="assetBody">
+                    <tr th:each="tickets : ${tickets}">
+                        <td class="font-bold text-[#d4af37]" th:text="${tickets.ticketNumber}">#007</td>
+                        <td th:text="${tickets.name}">JAMES BOND</td>
+                        <td th:text="${tickets.contact}">0917-007-0007</td>
+                        <td th:text="${tickets.address}">MI6 HQ, LONDON</td>
+                        <td th:text="${tickets.solicitor}">Q-BRANCH</td>
+                        <td> <a th:href="@{/admin/edit/{id}(id=${tickets.ticketId})}"><button class="edit-btn">EDIT</button></a><button th:onclick="'showDeleteModal(' + ${tickets.ticketId} + ')'" class="edit-btn border-red-500 text-red-500 hover:bg-red-500/20">TERMINATE</button></td>
+                    </tr>
+                   
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Structure -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+    <div class="glass p-8 rounded-lg border border-[#d9534f] max-w-sm w-full text-center">
+        <h2 class="text-[#d9534f] font-bold text-lg mb-4">CONFIRM TERMINATION</h2>
+        <p class="text-xs text-gray-300 mb-6">BABALA: Ang aksyong ito ay magbubura ng permanent record mula sa registry. Ipagpapatuloy ba?</p>
+        <div class="flex justify-center gap-4">
+            <button onclick="closeModal()" class="text-xs px-4 py-2 border border-gray-500 text-gray-300 hover:bg-gray-800">CANCEL</button>
+            <button id="confirmDeleteBtn" class="text-xs px-4 py-2 bg-[#d9534f] text-white hover:bg-red-700">CONTINUE</button>
+        </div>
+    </div>
+</div>
+
+    <script>
+        document.getElementById('ticketSearch').addEventListener('keyup', function() {
+            let filter = this.value.toLowerCase();
+            let rows = document.querySelectorAll('#assetBody tr');
+            rows.forEach(row => {
+                let ticketNum = row.cells[0].textContent.toLowerCase();
+                row.style.display = ticketNum.endsWith(filter) ? "" : "none";
+            });
+        });
+    </script>
+
+   
+
+    <script>
+       // Variable para i-store ang ID na buburahin
+        let selectedTicketId = null;
+
+        // Function na tatawagin ng button
+        function showDeleteModal(id) {
+            selectedTicketId = id; // I-save ang ID sa variable
+            document.getElementById('deleteModal').classList.remove('hidden');
+            console.log("Handang burahin ang ID:", selectedTicketId);
+        }
+
+        // Function para sa Cancel
+        function closeModal() {
+            document.getElementById('deleteModal').classList.add('hidden');
+            selectedTicketId = null;
+        }
+
+        // Function para sa Confirmation (Submit)
+        document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+            if (selectedTicketId) {
+                // I-redirect ang user sa iyong Spring Boot endpoint
+                window.location.href = '/admin/delete/' + selectedTicketId;
+            }
+        });
+    </script>
+</body>
+</html>
